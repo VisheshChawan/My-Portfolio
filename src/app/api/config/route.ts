@@ -14,7 +14,7 @@ export async function GET() {
 
     // Fetch the actual JSON content from the blob URL
     const latestBlob = blobs[blobs.length - 1];
-    const response = await fetch(latestBlob.url);
+    const response = await fetch(latestBlob.downloadUrl);
     const data = await response.json();
 
     return NextResponse.json({ data }, { status: 200 });
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     // Upload new config
     const blob = await put(CONFIG_FILENAME, JSON.stringify(body), {
-      access: 'public',
+      access: 'private',
       contentType: 'application/json',
       addRandomSuffix: false,
     });
