@@ -11,11 +11,12 @@ import SectionsTab from './tabs/SectionsTab';
 import AdvancedTab from './tabs/AdvancedTab';
 import ResumePanel from './tabs/ResumePanel';
 import ProfileImagePanel from './tabs/ProfileImagePanel';
+import AvatarSettingsPanel from './tabs/AvatarSettingsPanel';
 
 export default function AdminPanel() {
   const { logout } = useAdminAuth();
   const resetConfig = useAdminStore(state => state.resetConfig);
-  const [activeTab, setActiveTab] = useState<'CONTENT' | 'THEME' | 'ANIMATIONS' | 'SECTIONS' | 'DOCUMENTS' | 'PROFILE' | 'ADVANCED'>('THEME');
+  const [activeTab, setActiveTab] = useState<'CONTENT' | 'THEME' | 'ANIMATIONS' | 'SECTIONS' | 'DOCUMENTS' | 'PROFILE' | 'AVATAR' | 'ADVANCED'>('THEME');
 
   // Type assertion or standard access for Zundo temporal store
   const undo = (useAdminStore as any).temporal?.getState()?.undo;
@@ -41,7 +42,7 @@ export default function AdminPanel() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [undo, redo]);
 
-  const tabs = ['CONTENT', 'THEME', 'ANIMATIONS', 'SECTIONS', 'DOCUMENTS', 'PROFILE', 'ADVANCED'] as const;
+  const tabs = ['CONTENT', 'THEME', 'ANIMATIONS', 'SECTIONS', 'DOCUMENTS', 'PROFILE', 'AVATAR', 'ADVANCED'] as const;
 
   const handleExport = () => {
     const dataStr = localStorage.getItem('vc_portfolio_config');
@@ -136,6 +137,7 @@ export default function AdminPanel() {
             {activeTab === 'SECTIONS' && <SectionsTab />}
             {activeTab === 'DOCUMENTS' && <ResumePanel />}
             {activeTab === 'PROFILE' && <ProfileImagePanel />}
+            {activeTab === 'AVATAR' && <AvatarSettingsPanel />}
             {activeTab === 'ADVANCED' && <AdvancedTab />}
           </motion.div>
         </AnimatePresence>

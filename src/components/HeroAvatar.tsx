@@ -2,13 +2,23 @@
 
 import { useProfileImageStore } from '@/store/profileImageStore';
 import { useAdminStore } from '@/store/adminStore';
+import { useAvatarStore } from '@/store/avatarStore';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 export default function HeroAvatar() {
   const image = useProfileImageStore((s) => s.image);
   const name = useAdminStore((s) => s.config.personal.name);
+  const settings = useAvatarStore((s) => s.settings);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Generate initials from the name for placeholder
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   const initials = name
     .split(' ')
     .map((w) => w[0])
@@ -16,40 +26,77 @@ export default function HeroAvatar() {
     .slice(0, 2)
     .toUpperCase();
 
+  // Resolve size based on breakpoint
+  const size = isMobile ? settings.mobileSize : settings.desktopSize;
+  const offsetX = isMobile ? settings.mobileX : settings.desktopX;
+  const offsetY = isMobile ? settings.mobileY : settings.desktopY;
+
+  // Compute border radius from customRadius percentage
+  const borderRadius = `${settings.customRadius}%`;
+
+  // Compute glow/shadow strings from intensity sliders
+  const glowAlpha = settings.glowIntensity / 100;
+  const shadowAlpha = settings.shadowDepth / 100;
+  const boxShadow = [
+    `0 0 ${20 + settings.glowIntensity * 0.4}px rgba(0,255,200,${glowAlpha * 0.4})`,
+    `0 0 ${40 + settings.glowIntensity * 0.6}px rgba(0,255,200,${glowAlpha * 0.15})`,
+    `0 ${4 + settings.shadowDepth * 0.2}px ${20 + settings.shadowDepth * 0.4}px rgba(0,0,0,${shadowAlpha * 0.6})`,
+    `inset 0 0 ${20 + settings.glowIntensity * 0.2}px rgba(0,255,200,${glowAlpha * 0.08})`,
+  ].join(', ');
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        x: offsetX,
+        translateY: offsetY,
+        rotate: settings.rotation,
+      }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
       className="relative group"
+      style={{
+        zIndex: settings.zIndex,
+        padding: settings.padding,
+      }}
     >
       {/* Outer glow ring */}
-      <div
-        className="absolute -inset-2 rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-500 animate-spin-slow"
-        style={{
-          background: 'conic-gradient(from 0deg, transparent, var(--accent-primary), transparent, var(--accent-secondary), transparent)',
-          filter: 'blur(6px)',
-        }}
-      />
+      {settings.spinGlow && settings.glowIntensity > 0 && (
+        <div
+          className={`absolute -inset-2 opacity-60 group-hover:opacity-100 transition-opacity duration-500 ${settings.spinGlow ? 'animate-spin-slow' : ''}`}
+          style={{
+            borderRadius,
+            background: `conic-gradient(from 0deg, transparent, rgba(0,255,200,${glowAlpha}), transparent, rgba(109,40,217,${glowAlpha * 0.6}), transparent)`,
+            filter: `blur(${4 + settings.glowIntensity * 0.06}px)`,
+          }}
+        />
+      )}
 
-      {/* Inner border ring */}
-      <div
-        className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-[var(--accent-primary)]/40 group-hover:border-[var(--accent-primary)] transition-colors duration-500"
+      {/* Main frame */}
+      <motion.div
+        className="relative overflow-hidden group-hover:border-[var(--accent-primary)] transition-colors duration-500"
+        animate={{ width: size, height: size }}
+        transition={{ type: 'spring', stiffness: 200, damping: 25 }}
         style={{
-          boxShadow: '0 0 30px rgba(0,255,200,0.15), 0 0 60px rgba(0,255,200,0.05), inset 0 0 30px rgba(0,255,200,0.05)',
+          borderRadius,
+          borderWidth: settings.borderWidth,
+          borderStyle: 'solid',
+          borderColor: `rgba(0,255,200,${0.3 + glowAlpha * 0.3})`,
+          boxShadow,
         }}
       >
         {image ? (
           <motion.img
             src={image.base64Data}
-            alt="Vishesh Chawan"
+            alt="Profile"
             className="w-full h-full object-cover"
             loading="lazy"
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 0.4 }}
           />
         ) : (
-          /* Placeholder with initials */
           <div
             className="w-full h-full flex items-center justify-center"
             style={{
@@ -57,9 +104,10 @@ export default function HeroAvatar() {
             }}
           >
             <span
-              className="text-3xl md:text-4xl font-bold tracking-wider"
               style={{
                 fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+                fontSize: `${size * 0.25}px`,
                 color: 'var(--accent-primary)',
                 textShadow: '0 0 20px rgba(0,255,200,0.4)',
               }}
@@ -68,12 +116,13 @@ export default function HeroAvatar() {
             </span>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Status dot */}
       <div
-        className="absolute bottom-2 right-2 w-4 h-4 rounded-full border-2 border-[var(--bg-void)]"
+        className="absolute bottom-2 right-2 w-4 h-4 border-2 border-[var(--bg-void)]"
         style={{
+          borderRadius: '50%',
           background: 'var(--accent-primary)',
           boxShadow: '0 0 10px rgba(0,255,200,0.6)',
         }}
