@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { useAdminStore } from '@/store/adminStore';
+import HeroAvatar from '@/components/HeroAvatar';
 
 const spring = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -157,45 +158,55 @@ export default function Hero() {
           {personalData.statusBadge} · {personalData.location}
         </motion.div>
 
-        {/* Name Block */}
-        <div className="overflow-hidden mb-2">
-          <motion.h1
-            initial={{ x: -100, opacity: 0, scale: 0.95 }}
-            animate={{ x: 0, opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease, delay: 0.1 }}
-            className={`glitch-text ${glitching ? 'glitching' : ''} uppercase`}
-            data-text={personalData.name.split(' ')[0]}
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 800,
-              fontSize: 'clamp(5rem, 12vw, 10rem)',
-              lineHeight: 0.88,
-              letterSpacing: '-0.04em',
-              color: '#ffffff',
-            }}
-          >
-            {personalData.name.split(' ')[0]}
-          </motion.h1>
-        </div>
+        {/* Name + Avatar Row */}
+        <div className="flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-12">
+          <div className="flex-1">
+            {/* Name Block */}
+            <div className="overflow-hidden mb-2">
+              <motion.h1
+                initial={{ x: -100, opacity: 0, scale: 0.95 }}
+                animate={{ x: 0, opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease, delay: 0.1 }}
+                className={`glitch-text ${glitching ? 'glitching' : ''} uppercase`}
+                data-text={personalData.name.split(' ')[0]}
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 800,
+                  fontSize: 'clamp(5rem, 12vw, 10rem)',
+                  lineHeight: 0.88,
+                  letterSpacing: '-0.04em',
+                  color: '#ffffff',
+                }}
+              >
+                {personalData.name.split(' ')[0]}
+              </motion.h1>
+            </div>
 
-        <div className="overflow-hidden mb-6">
-          <motion.h1
-            initial={{ x: 100, opacity: 0, scale: 0.95 }}
-            animate={{ x: 0, opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease, delay: 0.2 }}
-            className="uppercase"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 800,
-              fontSize: 'clamp(5rem, 12vw, 10rem)',
-              lineHeight: 0.88,
-              letterSpacing: '-0.04em',
-              color: 'var(--accent-primary)',
-              textShadow: 'var(--glow-text)',
-            }}
-          >
-            {personalData.name.split(' ')[1] || ''}
-          </motion.h1>
+            <div className="overflow-hidden mb-6">
+              <motion.h1
+                initial={{ x: 100, opacity: 0, scale: 0.95 }}
+                animate={{ x: 0, opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease, delay: 0.2 }}
+                className="uppercase"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 800,
+                  fontSize: 'clamp(5rem, 12vw, 10rem)',
+                  lineHeight: 0.88,
+                  letterSpacing: '-0.04em',
+                  color: 'var(--accent-primary)',
+                  textShadow: 'var(--glow-text)',
+                }}
+              >
+                {personalData.name.split(' ')[1] || ''}
+              </motion.h1>
+            </div>
+          </div>
+
+          {/* Profile Avatar */}
+          <div className="flex justify-center lg:justify-end">
+            <HeroAvatar />
+          </div>
         </div>
 
         {/* Role + Typewriter */}
